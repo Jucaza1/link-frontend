@@ -1,15 +1,19 @@
 import { useState, PropsWithChildren, useEffect } from "react";
 import { UserContext } from "../context/UserContext";
-import { UserInfo } from "../types/state";
+import { User_DTO } from "../types/state";
 
 export function UserContextProvider({ children }: PropsWithChildren) {
-    const [user, setUser] = useState(null as UserInfo | null);
-    const [loggedIn, setLoggedIn] = useState(false);
+    const [user, setUser] = useState(null as User_DTO | null);
+    const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem("x-authorization") !== null);
+    // console.log("UserContextProvider initialized");
+    // console.log("UserContextProvider user:", user);
+    // console.log("UserContextProvider isLoggedIn:", isLoggedIn);
+    // console.log("------");
 
     useEffect(() => {
         const fetchUser = async () => {
             const userString = localStorage.getItem("user");
-            let userInfo: UserInfo | undefined
+            let userInfo: User_DTO | undefined
             if (userString) {
                 try {
                     userInfo = JSON.parse(userString)
@@ -19,16 +23,16 @@ export function UserContextProvider({ children }: PropsWithChildren) {
             }
             if (userInfo != undefined) {
                 setUser(userInfo)
-                setLoggedIn(true)
+                setIsLoggedIn(true)
                 return
             }
         }
 
         fetchUser();
-    }, []);
+    }, [isLoggedIn]);
 
     return (
-        <UserContext.Provider value={{ user, setUser, loggedIn, setLoggedIn }}>
+        <UserContext.Provider value={{ user, setUser, isLoggedIn, setIsLoggedIn }}>
             {children}
         </UserContext.Provider>
     );
