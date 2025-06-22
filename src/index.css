@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Signika:wght@300..700&family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -114,7 +115,6 @@
   font-style: normal;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Signika:wght@300..700&family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap');
 @keyframes neon-glow {
     0% {
         text-shadow: 0 0 5px #2ECC71, 0 0 10px #2ECC71, 0 0 15px #2ECC71, 0 0 20px #2ECC71;
