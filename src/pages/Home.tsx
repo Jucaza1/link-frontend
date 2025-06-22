@@ -6,10 +6,17 @@ import { useContext, useState } from "react";
 import toast from "react-hot-toast";
 import { UserContext } from "@/context/UserContext";
 import waving from "@/assets/waving.svg"
+import { API_URL } from "@/config";
+import { jwtDecode } from "jwt-decode";
+import { jwtClaim } from "@/types/user";
 
 function Home() {
     const [isRegistering, setIsRegistering] = useState(false);
-    const { isLoggedIn } = useContext(UserContext);
+    const { isLoggedIn, setIsLoggedIn } = useContext(UserContext);
+    const [loginFields, setLoginFields] = useState({
+        email: "",
+        password: "",
+    });
     function handleRegister(event: React.FormEvent) {
         event.preventDefault();
         // Handle registration logic here
@@ -21,19 +28,71 @@ function Home() {
     function handleLogin(event: React.FormEvent) {
         event.preventDefault();
         // Handle login logic here
-        console.log("Logging in user...");
-        toast.success("Login successful!");
-        // After successful login, you might want to redirect or update state
+        async function fetchLogin() {
+            // Simulate a login request
+            let body;
+            if (loginFields.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+                // if email contains @, then it is an email
+                body = {
+                    email: loginFields.email,
+                    password: loginFields.password,
+                }
+            } else {
+                // if email does not contain @, then it is a username
+                // assuming username is same as email
+                body = {
+                    username: loginFields.email,
+                    password: loginFields.password,
+                }
+            }
+            // if email does not contain @, then it is a username
+            // assuming username is same as email
+            const response = await fetch(`${API_URL}/login`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+
+                body: JSON.stringify(body),
+            });
+            if (!response.ok) {
+                toast.error("Login failed. Please check your credentials.");
+                return;
+            }
+            // store header x-authorization in localStorage
+            const authHeader = response.headers.get("x-authorization");
+            console.log("x-authorization Header:", authHeader);
+            console.log("x-authorization Header:", response.headers);
+            if (authHeader) {
+                localStorage.setItem("x-authorization", authHeader);
+            } else {
+                toast.error("No authorization token received.");
+                return;
+            }
+            setIsLoggedIn(true);
+            const decoded = jwtDecode<jwtClaim>(authHeader);
+            localStorage.setItem("userID", decoded.ID);
+            return
+        }
+        fetchLogin()
+            .then(() => {
+                toast.success("Login successful!");
+                // Update user context or state here if needed
+            })
+            .catch((error) => {
+                console.error("Login error:", error);
+                toast.error("An error occurred during login.");
+            });
     }
     return (
-        <main className="h-full flex flex-col items-center justify-center p-6">
-            <section className="text-center mb-12">
-                <h1 className="text-4xl font-bold mb-4">Welcome to LinkEase</h1>
+        <main className="h-full flex flex-col items-center pt-50 justify-center overflow-hidden">
+            <section className="text-center mb-12 mx-6">
+                <h1 className="text-4xl font-bold mb-4">Welcome to LinkShare</h1>
                 <p className="text-gray-600 text-lg">
                     Easily shorten and manage your URLs. Sign in or continue as a guest to get started.
                 </p>
             </section>
-            {!isLoggedIn ? (
+            {isLoggedIn ? (
                 <section className="text-center mb-12">
                     <Card className="shadow-lg">
                         <CardContent className="p-6">
@@ -50,7 +109,7 @@ function Home() {
                 </section>
             ) : (
 
-                <section className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <section className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-6">
                     {/* Register Card | or | Login Card */}
                     {isRegistering ? (
                         <Card className="shadow-lg">
@@ -76,10 +135,10 @@ function Home() {
                     ) : (
                         <Card className="shadow-lg">
                             <CardContent className="p-6">
-                                <h2 className="text-2xl font-semibold mb-4">Login</h2>
+                                <h2 className="text-2xl font-semibold mb-4">Log in</h2>
                                 <form className="flex flex-col gap-4">
-                                    <Input type="email" placeholder="Email" required />
-                                    <Input type="password" placeholder="Password" required />
+                                    <Input type="text" value={loginFields.email} onChange={(e) => { setLoginFields((prev) => { return { ...prev, email: e.target.value } }) }} placeholder="Email or Username" required />
+                                    <Input type="password" value={loginFields.password} onChange={(e) => { setLoginFields((prev) => { return { ...prev, password: e.target.value } }) }} placeholder="Password" required />
                                     <Button type="submit" onClick={handleLogin} className="w-full ">Log In</Button>
                                 </form>
                                 <p className="text-sm text-gray-500 mt-4">
