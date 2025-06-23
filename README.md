@@ -1,4 +1,5 @@
 # Frontend for the bakcend API -> [backend repo](https://github.com/jucaza1/link_shortener_ts)
+## PREVIEW without backend! -> [https://linkshare0.pages.dev/](https://linkshare0.pages.dev/)
 ## Link Shortener Frontend
 This is a minimalistic frontend for my link shortener backend API.
 ## Installation
@@ -16,7 +17,7 @@ This is a minimalistic frontend for my link shortener backend API.
     ```
 4. Start the development server:
     ```bash
-    npm start
+    npm run dev
     ```
 
 ## With Docker
@@ -26,7 +27,7 @@ This is a minimalistic frontend for my link shortener backend API.
     ```
 2. Run the Docker container:
     ```bash
-    docker run -p 80:5173 link-frontend
+    docker run -p 80:80 link-frontend
     ```
 3. Open your browser and go to `http://localhost`.
 
